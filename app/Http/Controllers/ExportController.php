@@ -58,38 +58,36 @@ class ExportController extends Controller
 */
     $path = $request->file('file')->getRealPath();
     $data = Excel::load($path)->get();
-    //dd($data);
-    // echo $data->count();
     
     if ($data->count()) {
-      /*if ($File_type == 0) {
-        $sql[] = "INSERT INTO `{$File_schema_name}`.`{$File_table_name}` (`{$File_column_reuslt}`) VALUES ('{$File_column_value_reuslt}');";
-      } else {
-        $sql[] = "UPDATE `{$File_schema_name}`.`{$File_table_name}` SET $File_SET WHERE (`{$File_condition}` = '{$File_condition_value}');";
-      }
-      */
+      $sql = [];
       foreach ($data as $key => $value) {
-        //echo $key;
-        //echo count($File_column);
-        // dd($data,$File_column);
-        foreach($File_column_value as $key => $column){
-          //echo $key.' : '.$column.' : '.$value->$column;
-          //$key_id = $value->$column;
-          $value_excel = $value->$column;
-          echo $File_column[0];
-          echo $value_excel;
-          //$key_value = $value->$column;
-          //echo "INSERT INTO `{W$File_schema_name}`.`{$File_table_name}` (`{$File_column}`) VALUES ('{$value_excel}');";
-          //echo $File_column.' '.$value_excel;
-          //echo "UPDATE `{$File_schema_name}`.`{$File_table_name}` SET `{$File_column}` = '{$value_excel}' WHERE (`{$File_condition}` = '{$File_condition_value}');";
-          //$sql[] = "UPDATE `{$File_schema_name}`.`{$File_table_name}` SET `{$File_column}` = '{$value_excel}' WHERE (`{$File_condition}` = '{$File_condition_value}');";
+        $into = [];
+        $insert_value = [];
+
+        $update = [];
+          foreach($File_column_value as $key_col => $column){
+            $value_excel = $value->$column;
+            if ($File_type == 0) {
+              $into[] = '`'.$File_column[$key_col].'`';
+              $insert_value[] = "'".$value_excel."'";
+            }else{
+              $update[] = '`'.$File_column[$key_col]."` = '".$value_excel."'";
+            }
+          }
+        if ($File_type == 0) {
+          $into = join( ',' , $into);
+          $insert_value = join( ',' , $insert_value);
+          $sql[] = "INSERT INTO `{$File_schema_name}`.`{$File_table_name}` ({$into}) VALUES ({$insert_value});\n";
+        }else{
+          $update = join(',' , $update);
+          $sql[] = "UPDATE `{$File_schema_name}`.`{$File_table_name}` SET {$update} WHERE (`{$File_condition}` = '{$value->$File_condition_value}');\n";
         }
+        
         //$key_value = $value->$File_SET_column_value;
         //$key_id = $value->$File_condition_value;
         //$sql[] = "UPDATE `{$File_schema_name}`.`{$File_table_name}` SET `{$DB_update_col_name}` = '{$key_value}' WHERE (`{$File_condition}` = '{$key_id}');";
       }
-      exit();
-      //dd($data);
       if (!empty($set)) { }
     }
     $file_export = implode(' ', $sql);

@@ -1,9 +1,10 @@
 <template>
   <div class="container form" id="app">
+    <!--
     <input type="file" name="file" @change="getData"/>
     <button class="btn btn-success" type="button">Get</button>
     <hr />
-
+    -->
     <select v-model="changeForm" name="type">
       <option value="0">Insert</option>
       <option value="1">Update</option>
